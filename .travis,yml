@@ -1,0 +1,15 @@
+language: go
+
+env: GO15VENDOREXPERIMENT=1
+
+go:
+  - 1.9.x
+  - 1.10.x
+  - 1.11.x
+  - tip
+
+script:
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
