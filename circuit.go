@@ -3,7 +3,6 @@ package fatol
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"sync"
 	"time"
 
@@ -77,6 +76,15 @@ type CircuitBreaker struct {
 	state                 State
 }
 
+// NewCircuitBreaker returns new curcuit breaker object
+func NewCircuitBreaker() *CircuitBreaker {
+	return &CircuitBreaker{
+		mutex:        &sync.Mutex{},
+		openInterval: 1 * time.Minute,
+		maxRequests:  5,
+		state:        StateClosed,
+	}
+}
 func (cb *CircuitBreaker) newObject() {
 	cb.clear()
 	switch cb.state {
@@ -204,34 +212,4 @@ func (cb *CircuitBreaker) Do(req func() (interface{}, error)) (interface{}, erro
 // implementation
 func readyToTrip(cb CircuitBreaker) bool {
 	return cb.numFailedRequests > 3
-}
-
-func initCircuit() {
-	cb = &CircuitBreaker{
-		mutex:        &sync.Mutex{},
-		openInterval: 1 * time.Minute,
-		maxRequests:  5,
-		state:        StateClosed,
-	}
-
-}
-
-func main() {
-	initCircuit()
-
-	for i := 0; i < 10; i++ {
-		result, err := cb.Do(func() (interface{}, error) {
-			result, err := http.Get("https://www.gossogle.ru")
-			if err != nil {
-				return nil, err
-			}
-			return result, nil
-		})
-
-		if err != nil {
-			fmt.Println("ERR: ", err)
-		}
-		fmt.Println(cb)
-		fmt.Println(result)
-	}
 }
