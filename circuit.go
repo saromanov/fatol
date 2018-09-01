@@ -76,6 +76,11 @@ type CircuitBreaker struct {
 	state                 State
 }
 
+// CircuitBreakerStat returns stat for circuit breaker
+type CircuitBreakerStat struct {
+	NumRequests uint32
+}
+
 // NewCircuitBreaker returns new curcuit breaker object
 func NewCircuitBreaker() *CircuitBreaker {
 	return &CircuitBreaker{
@@ -83,6 +88,13 @@ func NewCircuitBreaker() *CircuitBreaker {
 		openInterval: 1 * time.Minute,
 		maxRequests:  5,
 		state:        StateClosed,
+	}
+}
+
+// Stat returns statistics for circuit breaker
+func (cb *CircuitBreaker) Stat() CircuitBreakerStat {
+	return CircuitBreakerStat{
+		NumRequests: cb.numRequests,
 	}
 }
 func (cb *CircuitBreaker) newObject() {
